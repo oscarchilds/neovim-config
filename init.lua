@@ -128,9 +128,6 @@ vim.keymap.set("n", "<A-k>", ":m .-2<CR>==", { desc = "Move line up" })
 vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
 vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 
-vim.keymap.set("v", "<", "<gv", { desc = "Indent left and reselect" })
-vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
-
 vim.keymap.set("n", "J", "mzJ`z", { desc = "Join lines and keep cursor position" })
 
 vim.keymap.set("n", "<leader>pa", function() -- show file path
@@ -151,11 +148,11 @@ vim.pack.add({
 	-- "https://github.com/nvim-lualine/lualine.nvim",
 	"https://www.github.com/ibhagwan/fzf-lua",
 	"https://www.github.com/nvim-tree/nvim-tree.lua",
-	-- {
-	-- 	src = "https://github.com/nvim-treesitter/nvim-treesitter",
-	-- 	branch = "main",
-	-- 	build = ":TSUpdate",
-	-- },
+	{
+		src = "https://github.com/nvim-treesitter/nvim-treesitter",
+		branch = "main",
+		build = ":TSUpdate",
+	},
 	-- "https://github.com/JoosepAlviste/nvim-ts-context-commentstring",
 	-- -- Language Server Protocols
 	-- "https://www.github.com/neovim/nvim-lspconfig",
@@ -180,6 +177,7 @@ end
 packadd("nvim-tree.lua")
 packadd("fzf-lua")
 packadd("mini.nvim")
+packadd("nvim-treesitter")
 
 -- ============================================================================
 -- PLUGIN CONFIGS
@@ -193,7 +191,17 @@ require("nvim-tree").setup({
 	},
 	renderer = {
 		group_empty = true,
-	},
+    icons = {
+      show = {
+        bookmarks = false,
+        file = false,
+        folder = false,
+        folder_arrow = false,
+        git = false,
+        modified = false,
+      },
+    }
+  },
 })
 vim.keymap.set("n", "<leader>e", function()
 	require("nvim-tree.api").tree.toggle()
@@ -248,3 +256,44 @@ require("mini.statusline").setup({
   use_icons = false
 })
 
+local setup_treesitter = function()
+	local treesitter = require("nvim-treesitter")
+	treesitter.setup({})
+	local ensure_installed = {
+		"html",
+		"css",
+		"javascript",
+		"json",
+		"lua",
+		"markdown",
+		"typescript",
+		"vue",
+	}
+
+	local config = require("nvim-treesitter.config")
+
+	local already_installed = config.get_installed()
+	local parsers_to_install = {}
+
+	for _, parser in ipairs(ensure_installed) do
+		if not vim.tbl_contains(already_installed, parser) then
+			table.insert(parsers_to_install, parser)
+		end
+	end
+
+	if #parsers_to_install > 0 then
+		treesitter.install(parsers_to_install)
+	end
+
+	local group = vim.api.nvim_create_augroup("TreeSitterConfig", { clear = true })
+	vim.api.nvim_create_autocmd("FileType", {
+		group = group,
+		callback = function(args)
+			if vim.list_contains(config.get_installed(), vim.treesitter.language.get_lang(args.match)) then
+				vim.treesitter.start(args.buf)
+			end
+		end,
+	})
+end
+
+setup_treesitter()
