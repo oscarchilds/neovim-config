@@ -155,8 +155,8 @@ vim.pack.add({
 	},
 	-- "https://github.com/JoosepAlviste/nvim-ts-context-commentstring",
 	-- -- Language Server Protocols
-	-- "https://www.github.com/neovim/nvim-lspconfig",
-	-- "https://github.com/mason-org/mason.nvim",
+	"https://www.github.com/neovim/nvim-lspconfig",
+	"https://github.com/mason-org/mason.nvim",
 	-- "https://github.com/creativenull/efmls-configs-nvim",
 	-- {
 	-- 	-- NOTE: blink.cmp v2 is now the actively developed branch (breaking
@@ -178,6 +178,8 @@ packadd("nvim-tree.lua")
 packadd("fzf-lua")
 packadd("mini.nvim")
 packadd("nvim-treesitter")
+packadd("nvim-lspconfig")
+packadd("mason.nvim")
 
 -- ============================================================================
 -- PLUGIN CONFIGS
@@ -297,3 +299,55 @@ local setup_treesitter = function()
 end
 
 setup_treesitter()
+
+-- ============================================================================
+-- LSP, Linting, Formatting & Completion
+-- ============================================================================
+
+vim.keymap.set("n", "<leader>q", function()
+	vim.diagnostic.setloclist({ open = true })
+end, { desc = "Open diagnostic list" })
+vim.keymap.set("n", "<leader>dl", vim.diagnostic.open_float, { desc = "Show line diagnostics" })
+
+local mason_registry = require("mason-registry")
+local vue_language_server = mason_registry
+    .get_package("vue-language-server")
+    :get_install_path()
+    .. "/node_modules/@vue/language-server"
+
+vim.lsp.config("lua_ls", {})
+vim.lsp.config("vtsls", {
+  filetypes = {
+    "javascript",
+    "typescript",
+    "vue",
+  },
+  root_markers = {
+    "tsconfig.json",
+    "package.json",
+    "jsconfig.json",
+    ".git",
+  },
+  settings = {
+    vtsls = {
+      tsserver = {
+        globalPlugins = {
+          {
+            name = "@vue/typescript-plugin",
+            location = vue_language_server,
+            languages = { "vue" },
+            configNamespace = "typescript",
+            enableForWorkspaceTypeScriptVersions = true,
+          }
+        }
+      }
+    }
+  }
+})
+
+vim.lsp.enable({
+	"lua_ls",
+	"vtsls",
+})
+
+require("mason").setup()
