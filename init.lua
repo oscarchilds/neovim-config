@@ -309,11 +309,19 @@ vim.keymap.set("n", "<leader>q", function()
 end, { desc = "Open diagnostic list" })
 vim.keymap.set("n", "<leader>dl", vim.diagnostic.open_float, { desc = "Show line diagnostics" })
 
+require("mason").setup()
+
 local mason_registry = require("mason-registry")
-local vue_language_server = mason_registry
-    .get_package("vue-language-server")
-    :get_install_path()
-    .. "/node_modules/@vue/language-server"
+local vue_language_server_package = mason_registry.get_package("vue-language-server")
+local vue_language_server = vue_language_server_package:get_install_path()
+	.. "/node_modules/@vue/language-server"
+
+for _, package_name in ipairs({ "lua-language-server", "vtsls", "vue-language-server" }) do
+	local package = mason_registry.get_package(package_name)
+	if not package:is_installed() then
+		package:install()
+	end
+end
 
 vim.lsp.config("lua_ls", {})
 vim.lsp.config("vtsls", {
@@ -349,5 +357,3 @@ vim.lsp.enable({
 	"lua_ls",
 	"vtsls",
 })
-
-require("mason").setup()
