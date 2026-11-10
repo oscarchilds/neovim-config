@@ -1,5 +1,4 @@
 vim.opt.termguicolors = true
-vim.cmd.colorscheme("habamax")
 
 -- ============================================================================
 -- OPTIONS
@@ -157,6 +156,7 @@ vim.pack.add({
 	-- -- Language Server Protocols
 	"https://www.github.com/neovim/nvim-lspconfig",
 	"https://github.com/mason-org/mason.nvim",
+	"https://github.com/folke/tokyonight.nvim",
 	-- "https://github.com/creativenull/efmls-configs-nvim",
 	{
 		-- NOTE: blink.cmp v2 is now the actively developed branch (breaking
@@ -180,11 +180,14 @@ packadd("mini.nvim")
 packadd("nvim-treesitter")
 packadd("nvim-lspconfig")
 packadd("mason.nvim")
+packadd("tokyonight.nvim")
 packadd("blink.cmp")
 
 -- ============================================================================
 -- PLUGIN CONFIGS
 -- ============================================================================
+vim.cmd.colorscheme("tokyonight-night")
+
 require("nvim-tree").setup({
 	view = {
 		width = 35,
@@ -390,4 +393,3 @@ require("blink.cmp").setup({
 vim.lsp.config["*"] = {
 	capabilities = require("blink.cmp").get_lsp_capabilities(),
 }
-
