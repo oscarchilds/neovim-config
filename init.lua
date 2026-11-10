@@ -199,12 +199,13 @@ require("nvim-tree").setup({
 		group_empty = true,
     icons = {
       show = {
-        bookmarks = false,
-        file = false,
-        folder = false,
-        folder_arrow = false,
-        git = false,
-        modified = false,
+        -- Comment or uncomment based on if you've got a nerdfont installed
+        -- bookmarks = false,
+        -- file = false,
+        -- folder = false,
+        -- folder_arrow = false,
+        -- git = false,
+        -- modified = false,
       },
     }
   },
