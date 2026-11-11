@@ -313,6 +313,9 @@ vim.keymap.set("n", "<leader>q", function()
 	vim.diagnostic.setloclist({ open = true })
 end, { desc = "Open diagnostic list" })
 vim.keymap.set("n", "<leader>dl", vim.diagnostic.open_float, { desc = "Show line diagnostics" })
+vim.keymap.set("n", "<leader>ct", vim.lsp.buf.type_definition, {
+	desc = "Go to type definition",
+})
 
 require("mason").setup()
 
